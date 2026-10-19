@@ -49,7 +49,7 @@ public class FanoronaApp extends Application {
         Parent raiz = loader.load();
 
         FanoronaController controlador = loader.getController();
-        //controlador.iniciarConexao(isServidor, ip);
+        controlador.iniciarConexao(isServidor, ip);
 
         Scene cena = new Scene(raiz, 1220, 800);
         palcoPrincipal.setTitle(isServidor ? "Fanorona - Servidor (Brancas)" : "Fanorona - Cliente (Pretas)");

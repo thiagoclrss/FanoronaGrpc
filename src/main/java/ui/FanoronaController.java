@@ -49,23 +49,27 @@ public class FanoronaController {
     public void iniciarConexao(boolean isServidor, String ipServidor) {
         if (isServidor) {
             minhaCor = Peca.BRANCA;
-            // O callback agora recebe o objeto tipado PacoteRede
-            servidor = new FanoronaServer(5000, pacoteRecebido -> {
-                Platform.runLater(() -> processarMensagemDaRede(pacoteRecebido));
-            });
+            statusTurno.setText("Aguardando adversário conectar...");
+            servidor = new FanoronaServer(5000,
+                    pacote -> Platform.runLater(() -> processarMensagemDaRede(pacote)),
+                    () -> Platform.runLater(() -> {
+                        chatArea.appendText("[SISTEMA] Adversário conectado.\n");
+                        atualizarStatusTurno();
+                    }));
             try {
                 servidor.iniciar();
             } catch (IOException e) {
-                System.err.println("Falha ao iniciar o servidor gRPC: " + e.getMessage());
+                statusTurno.setText("Erro ao iniciar servidor: " + e.getMessage());
+                return;
             }
         } else {
             minhaCor = Peca.PRETA;
-            cliente = new FanoronaClient(ipServidor, 5000, pacoteRecebido -> {
-                Platform.runLater(() -> processarMensagemDaRede(pacoteRecebido));
-            });
+            statusTurno.setText("Conectando a " + ipServidor + "...");
+            cliente = new FanoronaClient(ipServidor, 5000,
+                    pacote -> Platform.runLater(() -> processarMensagemDaRede(pacote)));
             cliente.iniciar();
+            atualizarStatusTurno();
         }
-        atualizarStatusTurno();
     }
 
     // O envio agora exige um PacoteRede validado, impossibilitando strings maliciosas

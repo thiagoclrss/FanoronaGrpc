@@ -15,11 +15,14 @@ public class FanoronaServer {
     private final Consumer<PacoteRede> aoReceberMensagem;
 
     // Este é o "tubo" por onde enviaremos dados para o cliente
-    private StreamObserver<PacoteRede> clienteObserver;
+    private volatile StreamObserver<PacoteRede> clienteObserver;
+    private final Object lockEnvio = new Object();
+    private final Runnable aoConectar;
 
-    public FanoronaServer(int porta, Consumer<PacoteRede> aoReceberMensagem) {
+    public FanoronaServer(int porta, Consumer<PacoteRede> aoReceberMensagem, Runnable aoConectar) {
         this.porta = porta;
         this.aoReceberMensagem = aoReceberMensagem;
+        this.aoConectar = aoConectar;
     }
 
     public void iniciar() throws IOException {
@@ -31,8 +34,13 @@ public class FanoronaServer {
     }
 
     public void enviarMensagem(PacoteRede pacote) {
-        if (clienteObserver != null) {
-            clienteObserver.onNext(pacote); // Empurra o pacote pelo tubo
+        StreamObserver<PacoteRede> obs = clienteObserver;
+        if (obs != null) {
+            synchronized (lockEnvio) {
+                obs.onNext(pacote);
+            }
+        } else {
+            System.err.println("Nenhum cliente conectado, pacote descartado.");
         }
     }
 
@@ -51,6 +59,7 @@ public class FanoronaServer {
         public StreamObserver<PacoteRede> jogar(StreamObserver<PacoteRede> responseObserver) {
             // 1. Guardamos a referência do cliente para poder enviar mensagens a ele depois
             clienteObserver = responseObserver;
+            if (aoConectar != null) aoConectar.run();
 
             // 2. Retornamos um novo observador que dita o que fazer quando o cliente NOS enviar algo
             return new StreamObserver<PacoteRede>() {
