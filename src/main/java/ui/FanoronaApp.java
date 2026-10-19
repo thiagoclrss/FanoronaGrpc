@@ -7,8 +7,11 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.net.URL;
+import java.util.logging.Logger;
 
 public class FanoronaApp extends Application {
+
+    private final Logger log = Logger.getLogger(FanoronaApp.class.getName());
 
     @Override
     public void start(Stage palcoPrincipal) throws Exception {
@@ -60,7 +63,7 @@ public class FanoronaApp extends Application {
 
     @Override
     public void stop() {
-        System.out.println("Encerrando a interface gráfica...");
+        log.info("FanoronaApp finalizando...");
         System.exit(0);
     }
 

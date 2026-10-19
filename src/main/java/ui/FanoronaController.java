@@ -17,7 +17,6 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import network.FanoronaClient;
 import network.FanoronaServer;
-// Importações geradas pelo Protobuf/gRPC
 import network.grpc.AcaoSimples;
 import network.grpc.MensagemChat;
 import network.grpc.Movimento;
@@ -25,6 +24,7 @@ import network.grpc.PacoteRede;
 import network.grpc.TipoAcao;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 public class FanoronaController {
 
@@ -39,6 +39,7 @@ public class FanoronaController {
     private Posicao pecaSelecionada = null;
     private boolean jogoFinalizado = false;
     private Peca minhaCor;
+    private final Logger log =  Logger.getLogger(FanoronaController.class.getName());
 
     @FXML
     public void initialize() {
@@ -72,13 +73,12 @@ public class FanoronaController {
         }
     }
 
-    // O envio agora exige um PacoteRede validado, impossibilitando strings maliciosas
     private void enviarPacoteRede(PacoteRede pacote) {
         if (servidor != null) servidor.enviarMensagem(pacote);
         if (cliente != null) cliente.enviarMensagem(pacote);
     }
 
-    // O Roteador de mensagens agora usa os métodos has...() gerados pelo Protobuf
+
     private void processarMensagemDaRede(PacoteRede pacote) {
         if (pacote.hasMovimento()) {
             Movimento mov = pacote.getMovimento();
@@ -115,7 +115,6 @@ public class FanoronaController {
         if (!texto.isBlank()) {
             chatArea.appendText("Você: " + texto + "\n");
 
-            // Usando o Builder do gRPC para construir a mensagem
             PacoteRede pacote = PacoteRede.newBuilder()
                     .setChat(MensagemChat.newBuilder().setTexto(texto).build())
                     .build();
@@ -142,7 +141,7 @@ public class FanoronaController {
     public void passarTurno() {
         if (jogoFinalizado) return;
         if (jogo.getTurnoAtual() != minhaCor) {
-            System.out.println("Ação bloqueada: Não é o seu turno.");
+            log.info("Ação bloqueada: Não é o seu turno.");
             return;
         }
 
@@ -257,9 +256,8 @@ public class FanoronaController {
                 boolean sucesso = jogo.tentarMovimento(pecaSelecionada, clicada);
 
                 if (sucesso) {
-                    System.out.println("Movimento executado!");
+                    log.info("Movimento executado!");
 
-                    // Empacotamento rigoroso de coordenadas com o Builder
                     PacoteRede pacote = PacoteRede.newBuilder()
                             .setMovimento(Movimento.newBuilder()
                                     .setLinhaOrigem(pecaSelecionada.linha())
@@ -276,7 +274,7 @@ public class FanoronaController {
                         anunciarVencedor(vencedor);
                     }
                 } else {
-                    System.out.println("Movimento inválido.");
+                    log.info("Movimento inválido.");
                 }
 
                 pecaSelecionada = null;

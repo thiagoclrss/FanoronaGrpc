@@ -7,17 +7,17 @@ import network.grpc.FanoronaServiceGrpc;
 import network.grpc.PacoteRede;
 import java.io.IOException;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class FanoronaServer {
     private Server grpcServer;
     private final int porta;
-    // O callback agora trafega o objeto binário seguro do gRPC, e não mais uma String crua
     private final Consumer<PacoteRede> aoReceberMensagem;
-
-    // Este é o "tubo" por onde enviaremos dados para o cliente
     private volatile StreamObserver<PacoteRede> clienteObserver;
     private final Object lockEnvio = new Object();
     private final Runnable aoConectar;
+    private final Logger log = Logger.getLogger(FanoronaServer.class.getName());
 
     public FanoronaServer(int porta, Consumer<PacoteRede> aoReceberMensagem, Runnable aoConectar) {
         this.porta = porta;
@@ -30,7 +30,7 @@ public class FanoronaServer {
                 .addService(new FanoronaServiceImpl())
                 .build()
                 .start();
-        System.out.println("Servidor gRPC iniciado na porta " + porta);
+        log.info("Servidor gRPC iniciado na porta " + porta);
     }
 
     public void enviarMensagem(PacoteRede pacote) {
@@ -40,7 +40,7 @@ public class FanoronaServer {
                 obs.onNext(pacote);
             }
         } else {
-            System.err.println("Nenhum cliente conectado, pacote descartado.");
+            log.info("Nenhum cliente conectado, pacote descartado");
         }
     }
 
@@ -50,22 +50,16 @@ public class FanoronaServer {
         }
     }
 
-    /**
-     * Esta classe interna implementa o contrato que definimos no arquivo .proto.
-     */
     private class FanoronaServiceImpl extends FanoronaServiceGrpc.FanoronaServiceImplBase {
 
         @Override
         public StreamObserver<PacoteRede> jogar(StreamObserver<PacoteRede> responseObserver) {
-            // 1. Guardamos a referência do cliente para poder enviar mensagens a ele depois
             clienteObserver = responseObserver;
             if (aoConectar != null) aoConectar.run();
 
-            // 2. Retornamos um novo observador que dita o que fazer quando o cliente NOS enviar algo
             return new StreamObserver<PacoteRede>() {
                 @Override
                 public void onNext(PacoteRede pacoteRede) {
-                    // Assim que um pacote chega, acionamos o Controlador (ViewModel)
                     if (aoReceberMensagem != null) {
                         aoReceberMensagem.accept(pacoteRede);
                     }
@@ -73,13 +67,13 @@ public class FanoronaServer {
 
                 @Override
                 public void onError(Throwable throwable) {
-                    System.err.println("Conexão com o cliente perdida: " + throwable.getMessage());
+                    log.log(Level.SEVERE, "Conexão com o cliente perdida: " + throwable.getMessage(), throwable);
                     clienteObserver = null;
                 }
 
                 @Override
                 public void onCompleted() {
-                    System.out.println("O cliente encerrou a conexão de forma amigável.");
+                    log.info("O cliente encerrou a conexão de forma amigável.");
                     clienteObserver = null;
                 }
             };
