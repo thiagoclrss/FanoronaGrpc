@@ -16,6 +16,7 @@ network/grpc/MovimentoOrBuilder.class
 network/grpc/TipoAcao$1.class
 network/grpc/MensagemChatOrBuilder.class
 network/grpc/FanoronaServiceGrpc$FanoronaServiceMethodDescriptorSupplier.class
+network/FanoronaClient$1.class
 network/grpc/FanoronaServiceGrpc.class
 network/grpc/PacoteRede$1.class
 network/grpc/AcaoSimplesOrBuilder.class
@@ -37,6 +38,7 @@ network/grpc/FanoronaServiceGrpc$FanoronaServiceBlockingStub.class
 network/grpc/FanoronaServiceGrpc$MethodHandlers.class
 network/FanoronaServer$FanoronaServiceImpl.class
 network/grpc/Movimento.class
+network/FanoronaClient.class
 network/grpc/Movimento$Builder.class
 network/grpc/FanoronaServiceGrpc$2.class
 network/grpc/MensagemChat$1.class
