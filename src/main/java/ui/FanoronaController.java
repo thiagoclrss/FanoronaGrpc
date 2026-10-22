@@ -314,4 +314,9 @@ public class FanoronaController {
 
         alerta.showAndWait();
     }
+
+    public void encerrarConexoes() {
+        if (servidor != null) servidor.parar();
+        if (cliente != null) cliente.parar();
+    }
 }

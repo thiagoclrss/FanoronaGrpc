@@ -13,6 +13,8 @@ public class FanoronaApp extends Application {
 
     private final Logger log = Logger.getLogger(FanoronaApp.class.getName());
 
+    private FanoronaController controladorAtivo;
+
     @Override
     public void start(Stage palcoPrincipal) throws Exception {
         javafx.scene.control.Alert alertaFundo = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.CONFIRMATION);
@@ -51,8 +53,8 @@ public class FanoronaApp extends Application {
         FXMLLoader loader = new FXMLLoader(caminhoFxml);
         Parent raiz = loader.load();
 
-        FanoronaController controlador = loader.getController();
-        controlador.iniciarConexao(isServidor, ip);
+        controladorAtivo = loader.getController();
+        controladorAtivo.iniciarConexao(isServidor, ip);
 
         Scene cena = new Scene(raiz, 1220, 800);
         palcoPrincipal.setTitle(isServidor ? "Fanorona - Servidor (Brancas)" : "Fanorona - Cliente (Pretas)");
@@ -64,6 +66,11 @@ public class FanoronaApp extends Application {
     @Override
     public void stop() {
         log.info("FanoronaApp finalizando...");
+
+        if (controladorAtivo != null) {
+            controladorAtivo.encerrarConexoes();
+        }
+
         System.exit(0);
     }
 
