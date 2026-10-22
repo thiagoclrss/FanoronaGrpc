@@ -42,7 +42,11 @@ java -jar target/fanorona-grpc-1.0-SNAPSHOT.jar
 ```
 
 1. No menu pop-up, selecione **Criar Partida (Servidor)**.
-2. Aguarde a mensagem `[SISTEMA] Adversário conectado.` no painel de chat.
+2. Aguarde a mensagem `[SISTEMA] Adversário conectado.`  que chegará no painel de chat quando o adversário se conectar na partida.
+
+<p align="center">
+  <img src="src/main/resources/images/readme/img.png" alt="Tela inicial do Fanorona servidor" width="700">
+</p>
 
 **Terminal 2 (Jogador 2 - O Cliente):**
 *Num segundo terminal ou em outro computador na mesma rede local:*
@@ -53,6 +57,10 @@ java -jar target/fanorona-grpc-1.0-SNAPSHOT.jar
 
 1. Selecione **Entrar (Cliente)**.
 2. Insira o **IP do Servidor** (ou deixe `127.0.0.1` para testar na mesma máquina).
+
+<p align="center">
+  <img src="src/main/resources/images/readme/img_1.png" alt="Tela inicial do Fanorona cliente" width="700">
+</p>
 
 ---
 
